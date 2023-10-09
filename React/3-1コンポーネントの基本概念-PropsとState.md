@@ -246,3 +246,84 @@ root.render(
   <TitledPanel title={title} body={body}></TitledPanel>
 );
 ```
+
+### childrenから目的の要素を取り出す
+childrenからkey属性をキーにして、目的の要素を取り出せる
+```
+// TitlePanel.js
+export default function TitledPanel({ children }) {
+  const title = children.find(elem => elem.key === 'title');
+  const body = children.find(elem => elem.key === 'body')
+
+  return (
+    <div style={{
+      margin: 50,
+      padding: 5,
+      border: '1px solid #000',
+      width: 'fit-content',
+      boxShadow: '10px 5px 5px #999',
+      backgroundColor: '#fff'
+    }}>
+      {title}
+      <hr />
+      {body}
+    </div>
+  );
+}
+```
+
+```
+// index.js
+root.render(
+  <TitledPanel>
+    <p key="title">メンバー募集中！</p>
+    <p key="body">ようこそ、WINGSプロジェクトへ！！</p>
+  </TitledPanel>
+);
+```
+- TitledPanelコンポーネントはchildrenプロップを受け取ります。
+- childrenの中からkeyプロパティが'title'、'body'となっている要素を検索し、title変数とbody変数に格納します。
+- TitledPanelコンポーネントは、title変数とbody変数の内容をレンダリングし、タイトル部分とボディ部分を表示します。
+- この方法により、TitledPanelコンポーネントを利用するコンポーネント（この例ではindex.js）で異なるタイトルとボディの内容を動的に表示することができます。
+
+### childrenに対してパラメータを渡す
+```
+// ListTemplate.js
+export default function ListTemplate({ src, children }) {
+  return (
+    <dl>
+      {src.map(elem => (
+        <React.Fragment key={elem.isbn}>
+          {/* {children} */}
+          {children(elem)}
+        </React.Fragment>
+      ))}
+    </dl>
+  );
+}
+```
+- srcとchildrenをPropsとして受け取っている
+- srcは配列で、childrenは関数
+- src配列の各要素(elem)に対して、children関数を呼び出し、その結果をレンダリング
+- {children(elem)}はchildren関数をelem引数とともに呼び出している(index.jsの{(elem) => }の部分)
+```
+//index.js
+root.render(
+  <ListTemplate src={books}>
+    {(elem) => (
+      <>
+        <dt>
+          <a href={`https://wings.msn.to/books/${elem.isbn}/${elem.isbn}.jpg`}>
+            {elem.title}（{elem.price}円）
+          </a>
+        </dt>
+        <dd>{elem.summary}</dd>
+      </>
+    )}
+  </ListTemplate>
+);
+```
+- ListTemplateコンポーネントを呼び出し、srcプロップにbooks配列を渡している
+- childrenプロップとして関数を渡しています。この関数はelemを引数として受け取り、JSX要素を返す
+- この関数は、各elemに対して`<dt>`と`<dd>`要素を作成し、elemのプロパティを利用してコンテンツを表示する
+
