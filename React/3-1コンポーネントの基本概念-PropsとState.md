@@ -126,3 +126,123 @@ root.render(
 ```
 
 ## Props/Stateの理解を深める
+### コンポーネント配下のコンテンツをテンプレートに反映する
+
+childrenプロップは、コンポーネントが他のコンポーネントや要素を含めることを可能にし、その内容を動的に変更するのに非常に役立ちます。これにより、コンポーネントは再利用可能で柔軟になり、さまざまなシナリオで使用できます。
+
+コード例:
+
+親コンポーネント (index.js):
+```
+// index.js
+root.render(
+  <StyledPanel>
+    <p>メンバー募集中！</p>
+    <p>ようこそ、WINGSプロジェクトへ！！</p>
+  </StyledPanel>
+);
+```
+子コンポーネント (StyledPanel.js):
+```
+// StyledPanel.js
+export default function StyledPanel({ children }) {
+  return (
+    <div style={{...}}>
+      {children}
+    </div>
+  );
+}
+```
+解説:
+
+- StyledPanelコンポーネントはchildrenプロップを受け取り、そのプロップを利用して受け取ったコンテンツをレンダリングします。
+- index.jsでは、StyledPanelコンポーネントの開始タグと終了タグの間に2つの`<p>`要素を配置しています。これらの要素はStyledPanelコンポーネントにchildrenとして渡されます。
+- StyledPanelコンポーネントはこれらのchildrenをレンダリングし、結果としてスタイルが適用された`<div>`要素の中に2つの`<p>`要素が表示されます。
+- この方法により、StyledPanelコンポーネントは再利用可能で、それを利用するコンポーネントごとに異なるコンテンツを含めることができます。また、コンテンツは動的に変更され、異なるシナリオで同じStyledPanelコンポーネントを利用できます。
+
+
+### （例）Modalコンポーネント：ConfirmDelete.jsやUserInfo.jsでModalのchildrenとして異なるコンテンツを渡している
+```
+// Modal.js
+export default function Modal({ children }) {
+  return (
+    <div style={{...}}>
+      <div style={{...}}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ConfirmDelete.js
+import Modal from './Modal';
+function ConfirmDelete() {
+  return (
+    <Modal>
+      <p>本当にこのアイテムを削除しますか？</p>
+    </Modal>
+  );
+}
+
+// UserInfo.js
+import Modal from './Modal';
+function UserInfo() {
+  return (
+    <Modal>
+      <p>名前: 鈴木</p>
+    </Modal>
+  );
+}
+
+// index.js
+import ConfirmDelete from './ConfirmDelete';
+import UserInfo from './UserInfo';
+ReactDOM.render(<ConfirmDelete />, document.getElementById('root'));
+ReactDOM.render(<UserInfo />, document.getElementById('root'));
+```
+- Modalコンポーネントはchildrenプロップを利用して内容を動的に表示します。（ConfirmDelete.jsやUserInfo.jsのpタグ）
+- ConfirmDeleteとUserInfoはModalコンポーネントを利用し、異なる内容を表示します。それぞれがModalのchildrenとして異なるコンテンツを渡しています。
+- これにより、Modalコンポーネントを再利用し、異なるコンテンツを動的に表示することが可能になります。
+
+### 複数のchildrenを引き渡す
+`Props`を利用して、`<TiledPanel>`要素にtitle/bodyのように複数の属性を渡すようにする
+```
+// TiledPanel.js
+export default function TitledPanel({ title, body }) {
+  return (
+    <div style={{
+      margin: 50,
+      padding: 5,
+      border: '1px solid #000',
+      width: 'fit-content',
+      boxShadow: '10px 5px 5px #999',
+      backgroundColor: '#fff'
+    }}>
+      {title}
+      <hr />
+      {body}
+      // {children}が{title}<hr />{body}になっている
+    </div>
+  );
+}
+```
+
+```
+// index.js
+root.render(
+  <TitledPanel
+    title={<p>メンバー募集中！</p>}
+    body={<p>ようこそ、WINGSプロジェクトへ！！</p>}
+  ></TitledPanel>
+);
+```
+
+### 属性値を変数に切り出した例
+```
+// index.js
+const title = <p>メンバー募集中！</p>;
+const body = <p>ようこそ、WINGSプロジェクトへ！！</p>;
+root.render(
+  <TitledPanel title={title} body={body}></TitledPanel>
+);
+```
