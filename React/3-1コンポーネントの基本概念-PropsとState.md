@@ -327,3 +327,106 @@ root.render(
 - childrenプロップとして関数を渡しています。この関数はelemを引数として受け取り、JSX要素を返す
 - この関数は、各elemに対して`<dt>`と`<dd>`要素を作成し、elemのプロパティを利用してコンテンツを表示する
 
+### State値更新のための2つの構文
+#### １ずつ増加させる
+```
+// StateBasic.js
+import { useState } from "react";
+
+export default function StateBasic({ init }) {
+  const [count, setCount] = useState(init);
+  console.log(`count is ${count}.`);
+
+  const handleClick = () => {
+    setCount(count + 1);
+    setCount(count + 1);
+  };
+
+  return (
+    <>
+      <button onClick={handleClick}>カウント</button>
+      <p>{count}回、クリックされました。</p>
+    </>
+  );
+}
+```
+```
+// index.js
+root.render(<StateBasic init={0} />);
+```
+- `setCount(count + 1);`が2行あるが値は１ずつ増加
+- ReactではStateを非同期に更新している
+- イベントハンドラー`const handleClick = () => { … };`が終えた後でcountを更新する
+- `setCount(count + 1);`の1行目でカウントアップするが、2行目では同じ値のまま更新されない
+
+#### ２ずつ増加させるには
+```
+import { useState } from "react";
+
+export default function StateBasic({ init }) {
+  const [count, setCount] = useState(init);
+  console.log(`count is ${count}.`);
+
+  const handleClick = () => {
+    setCount(c => c + 1);
+    setCount(c => c + 1);
+  };
+  return (
+    <>
+      <button onClick={handleClick}>カウント</button>
+      <p>{count}回、クリックされました。</p>
+    </>
+  );
+}
+```
+- setCount(c => c + 1)→`c`:現在のStateの値、`c+1`:更新のための式
+- `c`の部分のState値は、その時々の最新の値であることが保証される
+
+### 子コンポーネントから親コンポーネントへの情報伝達
+- 親→子はProps
+- 子→親はState
+- 子コンポーネントから親コンポーネントのStateを更新することで情報を伝達する
+
+```
+// StateParent.js
+import { useState } from "react";
+import StateCounter from "./StateCounter";
+
+export default function StateParent(init) {
+  const [count, setCount] = useState(0);
+  const update = (step) => setCount((c) => c + step);
+  return (
+    <>
+      <p>総カウント：{count}</p>
+      <StateCounter step={1} onUpdate={update} />
+      <StateCounter step={5} onUpdate={update} />
+      <StateCounter step={-1} onUpdate={update} />
+    </>
+  );
+}
+```
+- onUpdate プロパティは、update 関数を参照しています: const update = (step) => setCount((c) => c + step);
+- ユーザーがいずれかのボタンをクリックすると、StateCounter.jsのhandleClick 関数が実行され、onUpdate 関数が step 引数とともに呼び出される
+- update 関数で、現在の count 値に step 値を加えることで `count` state を更新
+- `count` state が更新されると、StateParent コンポーネントが再レンダリングされ、新しい `count` 値が画面に表示されます: <p>総カウント：{count}</p>
+```
+//StateCounter.js
+import './StateCounter.css';
+
+export default function StateCounter({ step, onUpdate }) {
+  const handleClick = () => onUpdate(step);
+  return (
+    <button className="cnt" onClick={handleClick}>
+      <span>{step}</span>
+    </button>
+  );
+}
+```
+- StateCounter コンポーネントは step と onUpdate の2つのプロパティを受け取る
+- handleClick 関数を定義し、この関数は onUpdate 関数を step 引数とともに呼び出します: const handleClick = () => onUpdate(step);
+- ユーザーがいずれかのボタンをクリックすると、handleClick 関数が実行され、onUpdate 関数が step 引数とともに呼び出される
+- この onUpdate 関数は実際には StateParent.js に定義された update 関数で、現在の `count` 値に step 値を加えることで `count` state を更新
+```
+// index.js
+root.render(<StateParent />);
+```
