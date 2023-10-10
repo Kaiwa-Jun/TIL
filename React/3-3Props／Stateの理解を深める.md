@@ -1,6 +1,4 @@
-
-## Props/Stateの理解を深める
-### コンポーネント配下のコンテンツをテンプレートに反映する
+## コンポーネント配下のコンテンツをテンプレートに反映する
 
 childrenプロップは、コンポーネントが他のコンポーネントや要素を含めることを可能にし、その内容を動的に変更するのに非常に役立ちます。これにより、コンポーネントは再利用可能で柔軟になり、さまざまなシナリオで使用できます。
 
@@ -35,7 +33,7 @@ export default function StyledPanel({ children }) {
 - この方法により、StyledPanelコンポーネントは再利用可能で、それを利用するコンポーネントごとに異なるコンテンツを含めることができます。また、コンテンツは動的に変更され、異なるシナリオで同じStyledPanelコンポーネントを利用できます。
 
 
-### （例）Modalコンポーネント：ConfirmDelete.jsやUserInfo.jsでModalのchildrenとして異なるコンテンツを渡している
+## （例）Modalコンポーネント：ConfirmDelete.jsやUserInfo.jsでModalのchildrenとして異なるコンテンツを渡している
 ```
 // Modal.js
 export default function Modal({ children }) {
@@ -78,7 +76,7 @@ ReactDOM.render(<UserInfo />, document.getElementById('root'));
 - ConfirmDeleteとUserInfoはModalコンポーネントを利用し、異なる内容を表示します。それぞれがModalのchildrenとして異なるコンテンツを渡しています。
 - これにより、Modalコンポーネントを再利用し、異なるコンテンツを動的に表示することが可能になります。
 
-### 複数のchildrenを引き渡す
+## 複数のchildrenを引き渡す
 `Props`を利用して、`<TiledPanel>`要素にtitle/bodyのように複数の属性を渡すようにする
 ```
 // TiledPanel.js
@@ -111,7 +109,7 @@ root.render(
 );
 ```
 
-### 属性値を変数に切り出した例
+## 属性値を変数に切り出した例
 ```
 // index.js
 const title = <p>メンバー募集中！</p>;
@@ -121,7 +119,7 @@ root.render(
 );
 ```
 
-### childrenから目的の要素を取り出す
+## childrenから目的の要素を取り出す
 childrenからkey属性をキーにして、目的の要素を取り出せる
 ```
 // TitlePanel.js
@@ -160,7 +158,7 @@ root.render(
 - TitledPanelコンポーネントは、title変数とbody変数の内容をレンダリングし、タイトル部分とボディ部分を表示します。
 - この方法により、TitledPanelコンポーネントを利用するコンポーネント（この例ではindex.js）で異なるタイトルとボディの内容を動的に表示することができます。
 
-### childrenに対してパラメータを渡す
+## childrenに対してパラメータを渡す
 ```
 // ListTemplate.js
 export default function ListTemplate({ src, children }) {
@@ -201,8 +199,8 @@ root.render(
 - childrenプロップとして関数を渡しています。この関数はelemを引数として受け取り、JSX要素を返す
 - この関数は、各elemに対して`<dt>`と`<dd>`要素を作成し、elemのプロパティを利用してコンテンツを表示する
 
-### State値更新のための2つの構文
-#### １ずつ増加させる
+## State値更新のための2つの構文
+### １ずつ増加させる
 ```
 // StateBasic.js
 import { useState } from "react";
@@ -233,7 +231,7 @@ root.render(<StateBasic init={0} />);
 - イベントハンドラー`const handleClick = () => { … };`が終えた後でcountを更新する
 - `setCount(count + 1);`の1行目でカウントアップするが、2行目では同じ値のまま更新されない
 
-#### ２ずつ増加させるには
+### ２ずつ増加させるには
 ```
 import { useState } from "react";
 
@@ -256,7 +254,7 @@ export default function StateBasic({ init }) {
 - setCount(c => c + 1)→`c`:現在のStateの値、`c+1`:更新のための式
 - `c`の部分のState値は、その時々の最新の値であることが保証される
 
-### 子コンポーネントから親コンポーネントへの情報伝達
+## 子コンポーネントから親コンポーネントへの情報伝達
 - 親→子はProps
 - 子→親はState
 - 子コンポーネントから親コンポーネントのStateを更新することで情報を伝達する
