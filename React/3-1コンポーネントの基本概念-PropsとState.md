@@ -70,60 +70,6 @@ useStateを使うことで、コンポーネント内で動的なデータを簡
 ボタンがクリックされるたびに、setCount関数が呼び出され、countの値が更新され、コンポーネントが再レンダリングされます。</br>
 これにより、ユーザーに現在のカウント値が表示されます。</br>
 
-## 条件分岐と繰り返し処理
-```
-// ForList.js
-import React from 'react';
-
-// 書籍情報をindex.jsのProps（src）経由でbooks.jsから取得
-export default function ForList({ src }) {
-  return (
-  <dl>
-    // 書籍情報(src)をmapで表示
-    {src.map(elem => (
-      <React.Fragment key={elem.isbn}>
-        <dt>
-          <a href={`https://wings.msn.to/books/${elem.isbn}/${elem.isbn}.jpg`}>
-              {elem.title}（{elem.price}円）
-          </a>
-        </dt>
-        <dd>{elem.summary}</dd>
-      </React.Fragment>
-    ))}
-  </dl>
-  );
-}
-```
-
-```
-// books.js
-const books = [
-  {
-    isbn: '978-4-8156-1336-5',
-    title: 'これからはじめるVue.js 3実践入門',
-    price: 3740,
-    summary: 'JavaScriptフレームワーク「Vue.js」について解説した入門書です。',
-    download: true,
-  },
-  {
-    isbn: '978-4-297-13288-0',
-    title: '改訂3版JavaScript本格入門',
-    price: 3520,
-    summary: 'ECMAScript 2022に対応した内容で約200ページ増の大幅改訂。最新の基本文法から、開発に欠かせない応用トピックまで解説します。',
-    download: true,
-  },
-];
-export default books;
-```
-
-```
-// index.js
-import MyHello from './chap03/MyHello'
-
-root.render(
-  <ForList src={books} />
-)
-```
 
 ## Props/Stateの理解を深める
 ### コンポーネント配下のコンテンツをテンプレートに反映する
