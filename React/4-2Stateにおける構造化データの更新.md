@@ -313,13 +313,16 @@ export default function StateTodo() {
     }));
   };
 
+  // ⑩
   const handleRemove = e => {
     setTodo(todo.filter(item =>
       item.id !== Number(e.target.dataset.id)
     ));
   };
 
+
   const handleSort = e => {
+    // ❶既存のTodoリストを複製の上でソート
     const sorted = [...todo];
     sorted.sort((m, n) => {
       if (desc) {
@@ -328,7 +331,11 @@ export default function StateTodo() {
         return m.created.getTime() - n.created.getTime();
       }
     });
+
+    // desc値を変転
     setDesc(d => !d);
+
+    // ❷ソート済みのリストを再セット
     setTodo(sorted);
   };
 
@@ -362,6 +369,8 @@ export default function StateTodo() {
             <button type="button"
               onClick={handleDone} data-id={item.id}>済
             </button>
+
+            // ⑨
             <button type="button"
               onClick={handleRemove} data-id={item.id}>削除
             </button>
@@ -410,3 +419,12 @@ export default function StateTodo() {
 ⑦その他の要素は更新の対象外のため、そのまま元の要素を返す
 
 ⑧idDoneプロパティがtrueである項目にdoneスタイルクラスを付与して、取り消し線を表示させる
+
+### 配列への削除 - Todo項目の破棄
+⑨削除ボタンにdata-id属性を追加して、Todo項目を特定できるようにする
+⑩配列要素の削除の関数
+- filterメソッドを利用
+  - 条件に合致した要素を抽出
+  - 今回はid値（item.id）とdata-id属性（e.target.dataset.id）が合致しない要素だけを残すことで削除機能を実現している
+
+### 配列の並べ替え - Todo項目の昇順／降順
