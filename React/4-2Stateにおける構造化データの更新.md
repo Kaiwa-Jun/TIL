@@ -253,6 +253,160 @@ export default function StateNestImmer2() {
 
 
 ## 配列の更新
+- 配列型のStateは直接更新することはできないため、下表のルールでメソッドを選択する
+- 既存のStateオブジェクトや配列を直接変更せず、新しいオブジェクトや配列を作成してStateを更新するため
+  
+| 操作 | ○利用すべき | ×避けるべき |
+|:---|:---|:---|
+|追加 |concat、[...list] |push、unshift |
+|更新 |map |splice、list[i]=〜 |
+|削除 |filter、slice |pop、shift、splice |
+|ソート |あらかじめ配列を複製 |sort、reverse |
 
 
+### Todoアプリの例
+```
+import { useState } from 'react';
+import './StateTodo.css';
 
+let maxId = 0;
+export default function StateTodo() {
+  const [desc, setDesc] = useState(true);
+  const [title, setTitle] = useState('');
+  const [todo, setTodo] = useState([]);
+
+  const handleChangeTitle = e => {
+    setTitle(e.target.value);
+  };
+
+  const handleClick = () => {
+
+    // ①新規のTodoの追加
+    setTodo([
+      // ②
+      ...todo,
+      // ③
+      {
+        id: ++maxId,
+        title,
+        created: new Date(),
+        isDone: false
+      }
+    ]);
+  };
+
+  // ⑤済みボタンから呼び出される関数
+  const handleDone = e => {
+
+    // ⑥todo配列をｍapで走査して、id値が等しいものを検索
+    setTodo(todo.map(item => {
+      if (item.id === Number(e.target.dataset.id)) {
+        return {
+          ...item,
+          isDone: true
+        };
+
+      // ⑦
+      } else {
+        return item;
+      }
+    }));
+  };
+
+  const handleRemove = e => {
+    setTodo(todo.filter(item =>
+      item.id !== Number(e.target.dataset.id)
+    ));
+  };
+
+  const handleSort = e => {
+    const sorted = [...todo];
+    sorted.sort((m, n) => {
+      if (desc) {
+        return n.created.getTime() - m.created.getTime();
+      } else {
+        return m.created.getTime() - n.created.getTime();
+      }
+    });
+    setDesc(d => !d);
+    setTodo(sorted);
+  };
+
+  return (
+    <div>
+      <label>
+        やること：
+        <input type="text" name="title"
+          value={title} onChange={handleChangeTitle} />
+      </label>
+      <button type="button"
+        onClick={handleClick}>追加</button>
+      <button type="button"
+        onClick={handleSort}>
+         ソート（{desc ? '↑' : '↓'}）</button>
+      <hr />
+      {/* <ul>
+        {todo.map(item => (
+          <li key={item.id}>{item.title}</li>
+          ))}
+      </ul> */}
+      <ul>
+        {todo.map(item => (
+          <li key={item.id}
+
+            // ⑧
+            className={item.isDone ? 'done' : ''}>
+            {item.title}
+
+            // ④済ボタン
+            <button type="button"
+              onClick={handleDone} data-id={item.id}>済
+            </button>
+            <button type="button"
+              onClick={handleRemove} data-id={item.id}>削除
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+```
+
+### 配列への追加 - Todoの新規登録
+①Todoの新規登録
+  
+②push/unshiftなどの破壊的メソッドが使えないので、「...」演算子（スプレッド構文）で元の配列を複製
+  
+③新規要素を追加
+
+### 配列への更新 - Todoの済チェック
+④Todo項目を特定するためにdata-id属性に各項目のidプロパティを割り当てる
+
+⑤済みボタンから呼び出される関数
+
+⑥todo配列をｍapで走査して、id値が等しいものを検索
+- map関数は新しい配列を作成し、各要素に対して特定の処理を実行する
+- この場合、現在のid値（item.id）とdata-id属性（e.target.dataset.id）が一致する要素のisDoneプロパティをtrueに変更
+  - item.id:
+    - todo配列の各要素（item）は、ユニークな識別子としてidプロパティを持っている
+    - これは、配列内の各要素を一意に識別するために使用される
+  - e.target.dataset.id:
+    - eはイベントオブジェクトで、イベントハンドラーhandleDoneに渡される
+    - このイベントオブジェクトは、イベントに関連する情報を提供する
+    - e.targetは、イベントが発生したHTML要素（この場合はボタン）を参照する
+    - datasetは、HTML要素に設定されたdata-*属性の集合を参照する
+    - この場合、data-id属性が設定されており、dataset.idでその値を取得できる
+    - Number()関数は、dataset.idの値を数値に変換している
+    - dataset.idは文字列として取得されるため、数値に変換してitem.id（数値）と比較できるようにしている
+  - item.id === Number(e.target.dataset.id):
+    - この比較は、現在処理中のitemのidが、クリックされたボタンのdata-id属性の値と一致するかどうかを確認している
+    - 一致する場合、このitemは対象のTodo項目であり、そのisDoneプロパティをtrueに設定される
+
+- その他の要素はそのまま保持(⑦) 
+- この処理は、元のtodo配列を直接変更せずに、新しいtodo配列を作成している
+
+
+⑦その他の要素は更新の対象外のため、そのまま元の要素を返す
+
+⑧idDoneプロパティがtrueである項目にdoneスタイルクラスを付与して、取り消し線を表示させる
