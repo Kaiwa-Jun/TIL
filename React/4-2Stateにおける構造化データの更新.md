@@ -428,3 +428,6 @@ export default function StateTodo() {
   - 今回はid値（item.id）とdata-id属性（e.target.dataset.id）が合致しない要素だけを残すことで削除機能を実現している
 
 ### 配列の並べ替え - Todo項目の昇順／降順
+❶既存のTodoリストを複製の上でソート
+- State値は直接更新できないので、「...todo」で複製
+❷ソート済みのリストを再セット
