@@ -172,6 +172,23 @@ validateオプションによって独自の検証ルールを適用すること
 - return true;: NGワードが含まれていない場合、バリデーションは成功と見なされ、trueを返します。
 
 ## フォームの状態に応じて表示を制御する
+```
+  const {
+    register,
+    handleSubmit,
+
+    // ①
+    formState: { errors, isDirty, isValid, isSubmitting },
+  } = useForm({
+    defaultValues,
+  });
+
+
+<button type="submit"
+        disabled={!isDirty || !isValid}>送信</button>
+```
+①isDirtyがfalse（フォームが変更されない）、isValidがfalse（検証に失敗）の場合は、disabledが有効（ボタンが無効になる）
+
 ## 検証ライブラリを連携する
 ## Yupで独自の検証ルールを実装する
 ## Yupで入力値を変換する
