@@ -44,3 +44,149 @@ useReducerはより複雑なステート管理が可能であり、非同期処�
   - 更新に関わるパラメータ（任意のプロパティ）
  
 ## useReducerフックの基本
+```
+import { useReducer } from 'react';
+
+export default function HookReducer({ init }) {
+
+  //①StateとReducerの準備
+  const [state, dispatch] = useReducer(
+
+    //Reducer関数
+    (state, action) => {
+      switch (action.type) {
+
+        //②
+        case 'update':
+          return { count: state.count + 1 };
+
+        //③
+        default:
+          return state;
+      }
+    },
+    {
+      count: init
+    }
+  );
+
+  const handleClick = () => {
+
+    //④
+    dispatch({ type: 'update' });
+  };
+
+  return (
+    <>
+      <button onClick={handleClick}>カウント</button>
+      <p>{state.count}回、クリックされました。</p>
+    </>
+  );
+}
+```
+①StateとReducerの準備:  
+- useReducerフックは、第一引数にReducer関数、第二引数に初期状態（init）を取ります。
+- 戻り値として`state（現在の状態）とdispatch（アクションを送信する関数）`が返されます。
+```
+const [state, dispatch] = useReducer(reducer, { count: init });
+```
+
+②updateケース:  
+- Reducer関数内でswitch文を用いて、アクションのtypeに応じた処理を行っています。
+- updateというtypeが来た場合は、カウントを1増やします。
+
+```
+case 'update':
+  return { count: state.count + 1 };
+```
+
+③デフォルトケース:  
+- 一致するtypeがない場合には、現在のstateをそのまま返します。これは一般的な慣習です。
+```
+default:
+  return state;
+```
+
+④dispatchの呼び出し:  
+- handleClick関数内で、dispatch関数を用いてtype: 'update'というアクションを送信します。
+- このdispatchが呼び出されると、Reducerが再度実行されてstateが更新されます。
+```
+const handleClick = () => {
+  dispatch({ type: 'update' });
+};
+```
+
+## Reducerを複数のAction型に対応する
+```
+import { useReducer } from 'react';
+
+export default function HookReducerUp({ init }) {
+  const [state, dispatch] = useReducer(
+    (state, action) => {
+
+      //①
+      switch (action.type) {
+        case 'update':
+
+          //②
+          return { count: state.count + action.step };
+        case 'reset' :
+
+          //③
+          return { count: action.init };
+        default:
+          return state;
+      }
+    },
+    {
+        count: init
+    }
+  );
+
+  //④
+  const handleUp = () => dispatch({ type: 'update', step: 1 });
+  const handleDown = () => dispatch({ type: 'update', step: -1 });
+  const handleReset = () => dispatch({ type: 'reset', init: 0 });
+
+  return (
+  <>
+    <button onClick={handleUp}>カウントアップ</button>
+    <button onClick={handleDown}>カウントダウン</button>
+    <button onClick={handleReset}>リセット</button>
+    <p>{state.count}回、クリックされました。</p>
+  </>
+  );
+}
+```
+①switch文:  
+- switch文を用いてアクションのtypeに応じた処理を行います。
+
+②updateケース:  
+- typeがupdateの場合にcountを更新しますが、action.stepを使用して増減の値を動的に指定できます。
+```
+return { count: state.count + action.step };
+```
+
+③resetケース:  
+- typeがresetの場合にcountをaction.initにリセットします。
+```
+return { count: action.init };
+```
+
+④アクションのディスパッチ:  
+- 各ボタンがクリックされた場合に、dispatch関数を使って適切なtypeとパラメーター（step, init）を送ります。
+
+```
+const handleUp = () => dispatch({ type: 'update', step: 1 });
+const handleDown = () => dispatch({ type: 'update', step: -1 });
+const handleReset = () => dispatch({ type: 'reset', init: 0 });
+```
+  
+**useReducerのメリット**  
+状態の更新ロジックが一箇所にまとまる:  
+- useReducerを使用することで、状態の更新ロジックが一箇所（Reducer内）に集まります。
+- このことで、初心者のWebエンジニアでもコードの流れが把握しやすく、保守が容易になります。
+
+動的な操作が容易:  
+- この例では、action.stepやaction.initなど、動的な値を使って状態を更新しています。
+- これもuseReducerが有用なケースです
