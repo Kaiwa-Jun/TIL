@@ -111,3 +111,107 @@ const { title, lang } = useContext(MyAppContext);
 - 共通データ: 多くのコンポーネントで同じデータを使用する場合に便利です。
 - データフローの明確化: コンテキストを通じてデータが流れるため、どのコンポーネントがどのデータに依存しているかが明確になります。
 - 過度な使用のリスク: 使いすぎるとコードが複雑になり、データフローが不明瞭になる可能性があります。
+
+## 例：コンテキストを利用してテーマを切り替えを実装する
+使用するコード
+| ファイル名 | 概要 |
+|:---|:---:|
+|ThemaContext.js |コンテキストを定義 |
+|MyThemaProvider |テーマ／コンテキストの設定 |
+|HookThemaButton.js |テーマ切り替えのボタンの準備 |
+
+### コンテキストの準備（ThemaContext.js）
+```
+import { createContext } from 'react';
+
+export default createContext({
+  mode: 'light',
+  toggleMode: () => {}
+});
+```
+- ここでcreateContextを使って、新しいコンテキストを作成しています。
+- 初期値としてmodeをlightに設定し、toggleModeは空の関数で初期化しています。
+- このコンテキストは後でプロバイダー（MyThemaProvider.js）で上書きされることを想定しています。
+
+### ルートコンポーネントの準備（MyThemaProvider.js）
+```
+import { useState } from 'react';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { amber, grey } from '@mui/material/colors';
+import { CssBaseline } from '@mui/material';
+import ThemeContext from './ThemeContext';
+
+export default function MyThemeProvider({ children }) {
+  const [mode, setMode] = useState('light');
+  const themeConfig = {
+    mode,
+    toggleMode: () => {
+      setMode(prev =>
+        prev === 'light' ? 'dark' : 'light'
+      );
+    }
+  };
+  const theme = createTheme({
+    mode,
+    palette: {
+      mode,
+      ...(mode === 'light'
+      ? {
+          primary: amber,
+        }
+      : {
+        primary: {
+          main: grey[500],
+          contrastText: '#fff'
+        },
+        background: {
+          default: grey[900],
+          paper: grey[900],
+        },
+      }),
+    },
+
+  });
+  return (
+    <ThemeContext.Provider value={themeConfig}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        {children}
+      </ThemeProvider>
+    </ThemeContext.Provider>
+  );
+}
+```
+- useStateを使って現在のテーマモード（mode）を管理しています。
+- createThemeはMUIライブラリの関数で、テーマの設定を行います。
+- ThemeProviderとCssBaselineはMUIライブラリのコンポーネントで、全体のスタイリングを制御します。
+- themeConfigは、コンテキストを通して他のコンポーネントにmodeとtoggleModeを提供するためのオブジェクトです。
+```
+  const themeConfig = {
+    mode,
+    toggleMode: () => {
+      setMode(prev =>
+        prev === 'light' ? 'dark' : 'light'
+      );
+    }
+  };
+```
+- toggleMode関数は、現在のmodeをlightからdarkへ、またはその逆へと切り替えます。
+
+### コンテキストの取得(HookThemaButton.js)
+```
+import { useContext } from 'react';
+import { Button } from '@mui/material';
+import ThemeContext from './ThemeContext';
+
+export default function HookThemeButton() {
+  const { mode, toggleMode } = useContext(ThemeContext);
+  return (
+    <Button variant="contained" onClick={toggleMode}>
+      Mode {mode}
+    </Button>
+  );
+}
+```
+- useContextフックを使ってThemeContextからmodeとtoggleModeを取得します。
+- ボタンには、mode（現在のモード）が表示され、クリックするとtoggleMode関数が呼び出されてモードが切り替わります。
